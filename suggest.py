@@ -10,6 +10,7 @@
     20131001 基本结构，新增，搜索等基本功能
     20131005 增加缓存功能，当缓存打开，用户搜索某个前缀超过一定次数时，进行缓存，减少搜索时间
     20131006 增加PuppetNode,可以自定义返回节点中内容，用户存放下拉的其他属性，例如图片，分类等
+    20131008 增加puppet_node_map,对于相同hash值的傀儡节点，使用同一个，防止不必要的内存占用（主要是cache的）
 
 @TODO:
     test case
@@ -25,11 +26,27 @@ CACHED_SIZE = 10
 #被搜索超过多少次后才加入缓存
 CACHED_THREHOLD = 10
 
+#使用map，存储puppetnode对象，节约内存
+puppet_node_map = {}
+
 ############### start ######################
 class PuppetNode(object):
     def __str__(self):
         s = ["%s:%s" % (field, getattr(self,field)) for field in Node.get_puppet_fields()]
         return "<PuppetNode %s>" % ','.join(s)
+
+
+    def __hash__(self):
+        """
+        获取hash值，注意使用__str__的原因是，str包含了需要鉴别的每个值,若涉及的值一样，使用同一个对象而不是新建对象
+        如果__str__改了，需要单独对get_puppet_fields进行处理
+        """
+        return hash(str(self))
+
+
+    @staticmethod
+    def available_fields():
+        return Node.get_puppet_fields()
 
 
 class Node(dict):
@@ -63,7 +80,14 @@ class Node(dict):
         n = PuppetNode()
         for field in Node.get_puppet_fields():
             setattr(n, field, getattr(self, field))
-        return n
+
+        #使用同一个对象，而不是每次都复制
+        pnode_hash = hash(n)
+        if pnode_hash in puppet_node_map:
+            return puppet_node_map.get(pnode_hash)
+        else:
+            puppet_node_map[pnode_hash] = n
+            return n
 
 
     def __str__(self):
@@ -239,12 +263,16 @@ def build(file_path, is_case_sensitive=False):
 
 if __name__ == '__main__':
     n = Node("")
-    add(n, u'he')
-    add(n, u'her')
+    add(n, u'he') #default weight=0
+    add(n, u'her', weight=0)
+    add(n, u'hero', weight=10)
+    add(n, u'hera', weight=3)
 
     print n.get_top_node(u'he')
 
     for key, pnode in search(n, u'h'):
-        print key, pnode
+        print key, pnode, hash(pnode), id(pnode)
+
+
 
 

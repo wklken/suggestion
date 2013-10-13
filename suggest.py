@@ -9,94 +9,61 @@
 @update:
     20131001 基本结构，新增，搜索等基本功能
     20131005 增加缓存功能，当缓存打开，用户搜索某个前缀超过一定次数时，进行缓存，减少搜索时间
-    20131006 增加PuppetNode,可以自定义返回节点中内容，用户存放下拉的其他属性，例如图片，分类等
-    20131008 增加puppet_node_map,对于相同hash值的傀儡节点，使用同一个，防止不必要的内存占用（主要是cache的）
 
 @TODO:
     test case
+    加入拼音的话，导致内存占用翻倍增长，要考虑下如何优化节点，共用内存
 
 """
 #这是实现cache的一种方式，也可以使用redis/memcached在外部做缓存
 #一旦打开，search时会对每个节点做cache，当增加删除节点时，其路径上的cache会被清除,搜索时间降低了一个数量级
 #代价：内存消耗, 不需要时可以关闭,或者通过CACHED_THREHOLD调整缓存数量
+
+#开启
 CACHED = True
+#关闭
 #CACHED = False
+
 #注意，CACHED_SIZE >= search中的limit，保证search从缓存能获取到足够多的结果
 CACHED_SIZE = 10
 #被搜索超过多少次后才加入缓存
 CACHED_THREHOLD = 10
 
-#使用map，存储puppetnode对象，节约内存
-puppet_node_map = {}
 
 ############### start ######################
-class PuppetNode(object):
-    def __str__(self):
-        s = ["%s:%s" % (field, getattr(self,field)) for field in Node.get_puppet_fields()]
-        return "<PuppetNode %s>" % ','.join(s)
-
-
-    def __hash__(self):
-        """
-        获取hash值，注意使用__str__的原因是，str包含了需要鉴别的每个值,若涉及的值一样，使用同一个对象而不是新建对象
-        如果__str__改了，需要单独对get_puppet_fields进行处理
-        """
-        return hash(str(self))
-
-
-    @staticmethod
-    def available_fields():
-        return Node.get_puppet_fields()
-
 
 class Node(dict):
-    def __init__(self, key, is_leaf=False, weight=0):
-        #节点字符
+    def __init__(self, key, is_leaf=False, weight=0, kwargs=None):
+        """
+        :param key: 节点字符
+        :param is_leaf: 是否叶子节点
+        :param weight: 节点权重, 某个词最后一个字节点代表其权重，其余中间节点权重为0，无意义
+        :param kwargs: 可传入其他任意参数，用于某些特殊用途
+        """
         self.key = key
-        #是否叶子节点
         self.is_leaf = is_leaf
-        #节点权重, 某个词最后一个字节点代表其权重，其余中间节点权重为0，无意义
         self.weight = weight
 
-        #缓存
+        #缓存,存的是node指针
         self.cache = []
         #节点前缀搜索次数，可以用于搜索query数据分析
         self.search_count = 0
 
-
-    @staticmethod
-    def get_puppet_fields():
-        """
-        傀儡节点拷贝的项,用来返回，以及缓存的
-        NOTICE:可以加入其他属性，例如图标，分类等在展示时需要用到的，根据需要修改数据文件格式和build方法
-        """
-        return ['weight']
-
-
-    def make_puppet_node(self):
-        """
-        最终返回值,防止节点cache字段嵌套导致的问题,仅配置需要用到的属性值
-        """
-        n = PuppetNode()
-        for field in Node.get_puppet_fields():
-            setattr(n, field, getattr(self, field))
-
-        #使用同一个对象，而不是每次都复制
-        pnode_hash = hash(n)
-        if pnode_hash in puppet_node_map:
-            return puppet_node_map.get(pnode_hash)
-        else:
-            puppet_node_map[pnode_hash] = n
-            return n
+        #其他节点无关仅和内容相关的参数
+        if kwargs:
+            for key, value in kwargs.iteritems():
+                setattr(self, key, value)
 
 
     def __str__(self):
-        return '<Node key:%s is_leaf:%s> subnodes: %s' % (self.key, self.is_leaf, self.items())
+        return '<Node key:%s is_leaf:%s weight:%s Subnodes: %s>' % (self.key, self.is_leaf, self.weight, self.items())
 
 
     def add_subnode(self, node):
         """
         添加子节点
+
+        :param node: 子节点对象
         """
         self.update({node.key: node})
 
@@ -104,6 +71,9 @@ class Node(dict):
     def get_subnode(self, key):
         """
         获取子节点
+
+        :param key: 子节点key
+        :return: Node对象
         """
         return self.get(key)
 
@@ -111,13 +81,18 @@ class Node(dict):
     def has_subnode(self):
         """
         判断是否存在子节点
+
+        :return: bool
         """
         return len(self) > 0
 
 
     def get_top_node(self, prefix):
         """
-        获取一个前缀的最后一个节点，相当于补全的顶部节点
+        获取一个前缀的最后一个节点(补全所有后缀的顶部节点)
+
+        :param prefix: 字符转前缀
+        :return: Node对象
         """
         top = self
 
@@ -136,24 +111,35 @@ class Node(dict):
 def depth_walk(node):
     """
     递归，深度优先遍历一个节点,返回每个节点所代表的key以及所有关键字节点(叶节点)
+
+    :param node: Node对象
     """
     result = []
     if node.is_leaf:
-        result.append(('', node.make_puppet_node()))
+        result.append(('', node))
 
     if node.has_subnode():
         for k in node.iterkeys():
             s = depth_walk(node.get(k))
-            result.extend([(k + subkey, pnode) for subkey, pnode in s])
+            result.extend([(k + subkey, snode) for subkey, snode in s])
         return result
     else:
-        return [('', node.make_puppet_node())]
+        return [('', node)]
 
 
-def search(node, prefix, limit=None, is_case_sensitive=True):
+def search(node, prefix, limit=None, is_case_sensitive=False):
     """
     搜索一个前缀下的所有单词列表 递归
+
+    :param node: 根节点
+    :param prefix: 前缀
+    :param limit: 返回提示的数量
+    :param is_case_sensitive: 是否大小写敏感
+    :return: [(key, node)], 包含提示关键字和对应叶子节点的元组列表
     """
+    if not is_case_sensitive:
+        prefix = prefix.lower()
+
     node = node.get_top_node(prefix)
 
     #如果找不到前缀节点，代表匹配失败，返回空
@@ -175,9 +161,15 @@ def search(node, prefix, limit=None, is_case_sensitive=True):
 
     return result[:limit] if limit is not None else result
 
-def add(node, keyword, weight=0):
+#TODO: 做成可以传递任意参数的，不需要每次都改    2013-10-13 done
+def add(node, keyword, weight=0, **kwargs):
     """
-    加入一个单词
+    加入一个单词到树
+
+    :param node: 根节点
+    :param keyword: 关键词，前缀
+    :param weight: 权重
+    :param kwargs: 其他任意存储属性
     """
     one_node = node
 
@@ -188,7 +180,7 @@ def add(node, keyword, weight=0):
             if index != last_index:
                 one_node.add_subnode(Node(c, weight=weight))
             else:
-                one_node.add_subnode(Node(c, is_leaf=True, weight=weight))
+                one_node.add_subnode(Node(c, is_leaf=True, weight=weight, kwargs=kwargs))
             one_node = one_node.get_subnode(c)
         else:
             one_node = one_node.get_subnode(c)
@@ -199,11 +191,17 @@ def add(node, keyword, weight=0):
             if index == last_index:
                 one_node.is_leaf = True
                 one_node.weight = weight
+                for key, value in kwargs:
+                    setattr(one_node, key, value)
         index += 1
 
 def delete(node, keyword, judge_leaf=False):
     """
-    删除一个单词
+    从树中删除一个单词
+
+    :param node: 根节点
+    :param keyword: 关键词，前缀
+    :param judge_leaf: 是否判定叶节点，递归用,外部调用使用默认值
     """
     # 空关键词，传入参数有问题，或者递归调用到了根节点,直接返回
     if not keyword:
@@ -244,7 +242,10 @@ def delete(node, keyword, judge_leaf=False):
 
 def build(file_path, is_case_sensitive=False):
     """
-    从文件构建数据结构, 文件必须utf-8编码
+    从文件构建数据结构, 文件必须utf-8编码,可变更
+
+    :param file_path: 数据文件路径，数据文件默认两列，格式“关键词\t权重"
+    :param is_case_sensitive: 是否大小写敏感
     """
     node = Node("")
     f = open(file_path)
@@ -262,16 +263,37 @@ def build(file_path, is_case_sensitive=False):
 
 
 if __name__ == '__main__':
+    print '============ test1 ==============='
     n = Node("")
-    add(n, u'he') #default weight=0
-    add(n, u'her', weight=0)
-    add(n, u'hero', weight=10)
-    add(n, u'hera', weight=3)
+    #default weight=0, 后面的参数可以任意加,搜索返回结果再从node中将放入对应的值取出,这里放入一个othervalue值
+    add(n, u'he', othervalue="v-he")
+    add(n, u'her', weight=0, othervalue="v-her")
+    add(n, u'hero', weight=10, othervalue="v-hero")
+    add(n, u'hera', weight=3, othervalue="v-hera")
 
-    print n.get_top_node(u'he')
+    print "search h: "
+    for key, node in search(n, u'h'):
+        print key, node, node.othervalue, id(node)
 
-    for key, pnode in search(n, u'h'):
-        print key, pnode, hash(pnode), id(pnode)
+    print "serch her: "
+
+    for key, node in search(n, u'her'):
+        print key, node, node.othervalue, id(node)
+
+    print '============ test2 ==============='
+    tree = build("./test_data", is_case_sensitive=False)
+
+    print u'search 植物'
+    for key, node in search(tree, u'植物', limit=10):
+        print key, node.weight
+
+    print '\nsearch 植物大战'
+    for key, node in search(tree, u'植物大战', limit=10):
+        print key, node.weight
+
+    print '\nsearch 植物大战僵尸'
+    for key, node in search(tree, u'植物大战僵尸', limit=10):
+        print key, node.weight
 
 
 

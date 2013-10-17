@@ -5,9 +5,11 @@ suggestion
 
 下拉提示：在搜索框输入一个词，根据输入词匹配前缀，下拉框提示搜索系统中有的搜索词
 
-具体方法和说明可以查看源代码，200行左右
+具体方法和说明可以查看源代码，200行左右,可以根据自己需求任意修改
 
-python 版本已经完成，实际环境线上30w key，不加缓存情况下占用内存800M，开启缓存(用memcached或redis或自带)，可以有效提升响应速度，降低cpu load
+python 版本已经完成，实际环境线上30w key，不加缓存情况下占用内存800M，目前每天300w请求毫无压力。
+
+开启缓存(用memcached或redis或自带)，可以有效提升响应速度，降低cpu load
 
 golang 版本书写中(golang盲，开始翻书中)
 
@@ -18,7 +20,7 @@ golang 版本书写中(golang盲，开始翻书中)
 在代码中建立树
 
     n = Node("")
-    #default weight=0, 后面的参数可以任意加,搜索返回结果再从node中将放入对应的值取出,这里放入一个othervalue值
+    #default weight=0, 其他的参数可以任意加,搜索返回结果再从node中将放入对应的值取出,这里放入一个othervalue值
     add(n, u'he', othervalue="v-he")
     add(n, u'her', weight=0, othervalue="v-her")
     add(n, u'hero', weight=10, othervalue="v-hero")
@@ -42,6 +44,12 @@ golang 版本书写中(golang盲，开始翻书中)
 读取数据文件建立树
 
     tree = build("./test_data", is_case_sensitive=False)
+
+数据文件格式
+
+    关键词\t权重   且存成utf-8编码
+
+    植物大战僵尸\t11111
 
 搜索
 
@@ -92,6 +100,11 @@ golang 版本书写中(golang盲，开始翻书中)
                                                                     #所以，建立索引的时候，需要确认放到树中的，大小写
                                                                     #search和build的is_case_sensitive保持一致
         def build(file_path, is_case_sensitive=False) #从数据文件建立树的方法，可以根据自己数据文件格式重定义
+
+
+--------
+
+TODO:
 
 
 --------

@@ -1,23 +1,28 @@
 suggestion
 ==========
 
-### 简介
+整体修改中
 
-下拉提示：在搜索框输入一个词，根据输入词匹配前缀，下拉框提示搜索系统中有的搜索词
+### Purpose
 
-具体方法和说明可以查看源代码，200行左右,可以根据自己需求任意修改
+I just want to Build the most common search query suggestion service.
 
-python 版本已经完成，实际环境线上30w key，不加缓存情况下占用内存800M，每天百万级别请求毫无压力(8核/16G/双进程起服务)
+It'll wrote by Python (Golang is coming)
 
-开启缓存(用memcached或redis或自带)，可以有效提升响应速度，降低cpu load
+用Python实现最简单的搜索框下拉提示服务!
 
-golang 版本书写中(golang盲，开始翻书中)
+### Demo
 
-### 使用
 
-####测试1
 
-在代码中建立树
+
+### Tutorial
+
+#### Python version
+
+1. build tree in simple code and search
+
+build:
 
     n = Node("")
     #default weight=0, 其他的参数可以任意加,搜索返回结果再从node中将放入对应的值取出,这里放入一个othervalue值
@@ -26,12 +31,12 @@ golang 版本书写中(golang盲，开始翻书中)
     add(n, u'hero', weight=10, othervalue="v-hero")
     add(n, u'hera', weight=3, othervalue="v-hera")
 
-进行搜索
+search:
 
     for key, node in search(n, u'h'):
         print key, node, node.othervalue, id(node)
 
-结果
+result:
 
     search h:
     hero <Node key:o is_leaf:True weight:10 Subnodes: []> v-hero 140563304390448
@@ -39,25 +44,27 @@ golang 版本书写中(golang盲，开始翻书中)
     he <Node key:e is_leaf:True weight:0 Subnodes: [(u'r', {u'a': {}, u'o': {}})]> v-he 140563304376768
     her <Node key:r is_leaf:True weight:0 Subnodes: [(u'a', {}), (u'o', {})]> v-her 140563304377808
 
-###测试2
+2. build with data file
 
-读取数据文件建立树
+file format:
+
+    format:    words\tweight
+    coding:    utf-8
+    require:   weight type(int) 
+
+    eg:  植物大战僵尸\t1000
+
+build tree:
 
     tree = build("./test_data", is_case_sensitive=False)
 
-数据文件格式
-
-    关键词\t权重   且存成utf-8编码
-
-    植物大战僵尸\t11111
-
-搜索
+search
 
     print u'search 植物'
     for key, node in search(tree, u'植物', limit=10):
         print key, node.weight
 
-结果
+result:
 
     search 植物
     植物大战僵尸 154717704
@@ -71,54 +78,51 @@ golang 版本书写中(golang盲，开始翻书中)
     植物精灵 50475
     植物秘境：深入未知 43468
 
-### 参数和函数的说明
+### Others
 
-1. 可以查看源代码中对应参数和方法的注解
+1. It's suggested that build your own cache layer through Memcached/Redis.
 
-2. 查看docstring
+   That will help a lot!(much better,reduce the cpu load)
 
-        Python 2.7.5 (default, Aug 25 2013, 00:04:04)
-        [GCC 4.2.1 Compatible Apple LLVM 5.0 (clang-500.0.68)] on darwin
-        Type "help", "copyright", "credits" or "license" for more information.
-        >>> import suggest
-        >>> help(suggest)
-        Help on module suggest:
-        ......
+2. Kill the goose that how to use the wheel
 
-3. 简要说明
+   If your data word count less than 100,000 , Use the simple version.(Suggest)
 
-        CACHED = True #是否开启默认缓存
-        CACHED_SIZE = 10 #缓存大小
-        CACHED_THREHOLD = 10 #节点被搜索超过一定次数时，才会加缓存
+   Simple version is easy enough to modify code your self.(It's quick enough,just take more Mem)
 
-        class Node(dict)  #节点对象
-        def depth_walk(node) #深度遍历节点的方法
+   Otherwise, Use the Double-Array Trie Tree version.(Less Mem, quick seach but the logical is a little complicated)
 
-        def add(node, keyword, weight=0, **kwargs) #给树加一个前缀关键词
-        def delete(node, keyword, judge_leaf=False) #删除树里面的某个前缀
-        def search(node, prefix, limit=None, is_case_sensitive=False) #搜索方法，其中is_case_sensitive=False时，将会把prefx转为小写进行遍历
-                                                                    #所以，建立索引的时候，需要确认放到树中的，大小写
-                                                                    #search和build的is_case_sensitive保持一致
-        def build(file_path, is_case_sensitive=False) #从数据文件建立树的方法，可以根据自己数据文件格式重定义
+3. Encoding
+
+   Make sure that your data file encoding is utf-8
+
+### Performance
 
 
---------
+### TODO
 
-TODO:
+1. rebuild it with double-array trie tree
 
+2. get the performance tree
 
---------
+3. change code to support weight type float/double
 
-The End!
+### Connect
 
-wklken (凌岳/Pythonista/vim党党员)
+If you have any suggestions or questions, Open an issue!
+
+Also, pull requests!
+
+I will check that weekly.
+
+---------------
+
+wklken(Pythonista/Vimer)
 
 Email: wklken@yeah.net
 
+Blog: http://www.wklken.me
+
 Github: https://github.com/wklken
-
-Blog: http://wklken.me
-
-2013-10-13 于深圳
 
 

@@ -4,7 +4,7 @@
 @date:    20131001
 @version: 0.2
 @author:  wklken@yeah.net
-@desc:    搜索下拉提示，基于后台提供数据，建立数据结构(trie)，用户输入query前缀时，可以提示对应query前缀补全
+@desc:    搜索下拉提示，基于后台提供数据，建立数据结构(前缀树)，用户输入query前缀时，可以提示对应query前缀补全
 
 @update:
     20131001 基本结构，新增，搜索等基本功能

@@ -1,26 +1,25 @@
 suggestion
 ==========
 
+Simple search query suggest service support by python
+
 整体修改中
 
 ### Purpose
 
-I just want to Build the most common search query suggestion service.
-
-It'll wrote by Python (Golang is coming)
+> I just want to build a simple and powerful search query suggest service.
+> Python version.(Golang is coming)
 
 用Python实现最简单的搜索框下拉提示服务!
 
-### Demo
+### Live Demo
 
-
+Coming soon!
 
 
 ### Tutorial
 
-#### Python version
-
-1. build tree in simple code and search
+#### build tree in simple code and search
 
 build:
 
@@ -44,7 +43,7 @@ result:
     he <Node key:e is_leaf:True weight:0 Subnodes: [(u'r', {u'a': {}, u'o': {}})]> v-he 140563304376768
     her <Node key:r is_leaf:True weight:0 Subnodes: [(u'a', {}), (u'o', {})]> v-her 140563304377808
 
-2. build with data file
+#### build with data file
 
 file format:
 
@@ -98,6 +97,7 @@ result:
 
 ### Performance
 
+Coming soon!
 
 ### TODO
 

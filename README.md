@@ -1,7 +1,6 @@
 suggestion
 ==========
 
-Simple search query suggest service support by python/golang
 
 ### Purpose
 
@@ -11,19 +10,17 @@ Simple search query suggest service support by python/golang
 
 用Python/Golang实现最简单的搜索框下拉提示服务!
 
-### Live Demo
+Simple search query suggest service support by python/golang
 
-Coming soon!
 
-### quick run
+### Tutorial
+
+#### quick run
 
     git clone https://github.com/wklken/suggestion.git
     cd suggestion
     python suggest.py
     go run suggest.go
-
-
-### Tutorial
 
 #### build tree in simple code and search
 
@@ -108,25 +105,16 @@ result:
 
    Make sure that your data file encoding is utf-8
 
-### Performance
 
-Coming soon!
+4. TODO
 
-### TODO
+        1. rebuild it with double-array trie tree
+        2. get the performance tree
+        3. change code to support weight type float/double
 
-1. rebuild it with double-array trie tree
 
-2. get the performance tree
+If you have any suggestions or questions, Open an issue! or pull some requests.  I will check that weekly.
 
-3. change code to support weight type float/double
-
-### Connect
-
-If you have any suggestions or questions, Open an issue!
-
-Also, pull requests!
-
-I will check that weekly.
 
 ---------------
 

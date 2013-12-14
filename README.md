@@ -39,15 +39,16 @@ build:
 search:
 
     for key, node in search(n, u'h'):
-        print key, node, node.othervalue, id(node)
+        #print key, node, node.othervalue, id(node)
+        print key, node, node.weight
 
 result:
 
     search h:
-    hero <Node key:o is_leaf:True weight:10 Subnodes: []> v-hero 140563304390448
-    hera <Node key:a is_leaf:True weight:3 Subnodes: []> v-hera 140563304390752
-    he <Node key:e is_leaf:True weight:0 Subnodes: [(u'r', {u'a': {}, u'o': {}})]> v-he 140563304376768
-    her <Node key:r is_leaf:True weight:0 Subnodes: [(u'a', {}), (u'o', {})]> v-her 140563304377808
+    hero 10
+    hera 3
+    he 0
+    her 0
 
 #### build with data file
 

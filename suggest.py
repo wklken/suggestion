@@ -20,9 +20,9 @@
 #代价：内存消耗, 不需要时可以关闭,或者通过CACHED_THREHOLD调整缓存数量
 
 #开启
-CACHED = True
+#CACHED = True
 #关闭
-#CACHED = False
+CACHED = False
 
 #注意，CACHED_SIZE >= search中的limit，保证search从缓存能获取到足够多的结果
 CACHED_SIZE = 10
@@ -100,11 +100,6 @@ class Node(dict):
             top = top.get_subnode(k)
             if top is None:
                 return None
-
-            if top.has_subnode():
-                continue
-            else:
-                break
         return top
 
 
@@ -203,11 +198,14 @@ def delete(node, keyword, judge_leaf=False):
     :param keyword: 关键词，前缀
     :param judge_leaf: 是否判定叶节点，递归用,外部调用使用默认值
     """
+
     # 空关键词，传入参数有问题，或者递归调用到了根节点,直接返回
     if not keyword:
         return
 
     top_node = node.get_top_node(keyword)
+    if top_node is None:
+        return
 
     #清理缓存
     if CACHED:
@@ -271,14 +269,17 @@ if __name__ == '__main__':
     add(n, u'hero', weight=10, othervalue="v-hero")
     add(n, u'hera', weight=3, othervalue="v-hera")
 
+    #delete(n, u'hero')
+
     print "search h: "
     for key, node in search(n, u'h'):
-        print key, node, node.othervalue, id(node)
+        #print key, node, node.othervalue, id(node)
+        print key, node.weight
 
     print "serch her: "
-
     for key, node in search(n, u'her'):
-        print key, node, node.othervalue, id(node)
+        #print key, node, node.othervalue, id(node)
+        print key, node.weight
 
     print '============ test2 ==============='
     tree = build("./test_data", is_case_sensitive=False)

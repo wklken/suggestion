@@ -49,11 +49,11 @@ func (n *Node) Get_the_top_node(prefix string) *Node {
             return nil
         }
 
-        if top.Has_next() {
-            continue
-        } else {
-            break
-        }
+        //if top.Has_next() {
+            //continue
+        //} else {
+            //break
+        //}
     }
     return top
 }
@@ -100,6 +100,10 @@ func Search(node *Node, prefix string, limit int) NodeList {
     node = node.Get_the_top_node(prefix)
 
     result := make(map[string]*Node)
+
+    if node == nil {
+        return  make(NodeList, 0)
+    }
 
     if node.Is_leaf {
         result[prefix] = node
@@ -159,8 +163,45 @@ func (node *Node) Add(keyword string, weight float64) {
             one_node = new_node
         }
     }
+}
+
+func (node *Node) Delete(keyword string, judge_leaf bool) {
+    if len(keyword) == 0 {
+        return
+    }
+
+    top_node := node.Get_the_top_node(keyword)
+    if top_node == nil {
+        return
+    }
+
+    //递归往上，对父节点做的判断  遇到节点是某个关键词节点时，要退出
+    if judge_leaf {
+        if top_node.Is_leaf {
+            return
+        }
+    } else { //非递归，调用delete
+        if ! top_node.Is_leaf {
+            return
+        }
+    }
+
+    if top_node.Has_next() {
+        top_node.Is_leaf = false
+        return
+    } else {
+        this_node := top_node
+        chars := []rune(keyword)
+        prefix := string(chars[:len(chars)-1])
+        top_node = node.Get_the_top_node(prefix)
+        delete(top_node.Data, this_node.Key)
+        node.Delete(prefix, true)
+    }
+
+
 
 }
+
 
 
 func Build(file_path string) *Node{
@@ -199,6 +240,8 @@ func main() {
     n.Add("her", 0)
     n.Add("hero", 10)
     n.Add("hera", 3)
+
+    n.Delete("hera", false)
 
     fmt.Println("search h: ")
     nodes := Search(n, "h", 10)

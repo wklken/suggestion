@@ -1,20 +1,26 @@
 suggestion
 ==========
 
-Simple search query suggest service support by python
-
-整体修改中
+Simple search query suggest service support by python/golang
 
 ### Purpose
 
 > I just want to build a simple and powerful search query suggest service.
-> Python version.(Golang is coming)
 
-用Python实现最简单的搜索框下拉提示服务!
+> Python and Golang version
+
+用Python/Golang实现最简单的搜索框下拉提示服务!
 
 ### Live Demo
 
 Coming soon!
+
+### quick run
+
+    git clone https://github.com/wklken/suggestion.git
+    cd suggestion
+    python suggest.py
+    go run suggest.go
 
 
 ### Tutorial
@@ -49,7 +55,7 @@ file format:
 
     format:    words\tweight
     coding:    utf-8
-    require:   weight type(int) 
+    require:   weight type(int)
 
     eg:  植物大战僵尸\t1000
 
@@ -76,6 +82,12 @@ result:
     植物大作战 52909
     植物精灵 50475
     植物秘境：深入未知 43468
+
+### Golang version
+
+    The same logical as Python version.
+    Just run:
+        go run suggest.go
 
 ### Others
 

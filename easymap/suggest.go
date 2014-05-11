@@ -1,20 +1,20 @@
 package main
 
 import (
-    "fmt"
-    "sort"
-    "os"
     "bufio"
-    "strings"
+    "fmt"
+    "os"
+    "sort"
     "strconv"
+    "strings"
 )
 
 // search_count
 type Node struct {
-    Data map[string]*Node
-    Key string
-    Is_leaf bool
-    Weight float64
+    Data     map[string]*Node
+    Key      string
+    Is_leaf  bool
+    Weight   float64
     FullWord string
 }
 
@@ -25,8 +25,6 @@ func (n *Node) Init(key string) {
     n.Key = key
     n.FullWord = ""
 }
-
-
 
 // api for operation
 func (n *Node) Has_next() bool {
@@ -50,15 +48,13 @@ func (n *Node) Get_the_top_node(prefix string) *Node {
         }
 
         //if top.Has_next() {
-            //continue
+        //continue
         //} else {
-            //break
+        //break
         //}
     }
     return top
 }
-
-
 
 // api for sort
 
@@ -102,7 +98,7 @@ func Search(node *Node, prefix string, limit int) NodeList {
     result := make(map[string]*Node)
 
     if node == nil {
-        return  make(NodeList, 0)
+        return make(NodeList, 0)
     }
 
     if node.Is_leaf {
@@ -129,11 +125,9 @@ func Search(node *Node, prefix string, limit int) NodeList {
 
 }
 
-
 func (node *Node) Str() string {
     return "<Node>"
 }
-
 
 func (node *Node) Add(keyword string, weight float64) {
     one_node := node
@@ -141,7 +135,7 @@ func (node *Node) Add(keyword string, weight float64) {
     total_chars := []rune(keyword)
     last_index := len(total_chars) - 1
 
-    for current_index, c := range total_chars{
+    for current_index, c := range total_chars {
         char := string(c)
 
         if find_node, found := one_node.Data[char]; found {
@@ -181,7 +175,7 @@ func (node *Node) Delete(keyword string, judge_leaf bool) {
             return
         }
     } else { //非递归，调用delete
-        if ! top_node.Is_leaf {
+        if !top_node.Is_leaf {
             return
         }
     }
@@ -198,13 +192,9 @@ func (node *Node) Delete(keyword string, judge_leaf bool) {
         node.Delete(prefix, true)
     }
 
-
-
 }
 
-
-
-func Build(file_path string) *Node{
+func Build(file_path string) *Node {
     n := new(Node)
     n.Init("")
 
@@ -255,7 +245,7 @@ func main() {
     }
 
     fmt.Println("============ test2 ===============")
-    tree := Build("./test_data")
+    tree := Build("./data.txt")
     fmt.Println("search 植物")
     nodes = Search(tree, "植物", 10)
     for _, node := range nodes {
@@ -275,6 +265,5 @@ func main() {
     for _, node := range nodes {
         fmt.Println(node.FullWord, node.Weight)
     }
-
 
 }

@@ -9,6 +9,7 @@
 @update:
     20131001 基本结构，新增，搜索等基本功能
     20131005 增加缓存功能，当缓存打开，用户搜索某个前缀超过一定次数时，进行缓存，减少搜索时间
+    20140309 修改代码，降低内存占用
 
 @TODO:
     test case
@@ -35,10 +36,10 @@ CACHED_THREHOLD = 10
 class Node(dict):
     def __init__(self, key, is_leaf=False, weight=0, kwargs=None):
         """
-        :param key: 节点字符
-        :param is_leaf: 是否叶子节点
-        :param weight: 节点权重, 某个词最后一个字节点代表其权重，其余中间节点权重为0，无意义
-        :param kwargs: 可传入其他任意参数，用于某些特殊用途
+        @param key: 节点字符
+        @param is_leaf: 是否叶子节点
+        @param weight: 节点权重, 某个词最后一个字节点代表其权重，其余中间节点权重为0，无意义
+        @param kwargs: 可传入其他任意参数，用于某些特殊用途
         """
         self.key = key
         self.is_leaf = is_leaf
@@ -107,7 +108,7 @@ def depth_walk(node):
     """
     递归，深度优先遍历一个节点,返回每个节点所代表的key以及所有关键字节点(叶节点)
 
-    :param node: Node对象
+    @param node: Node对象
     """
     result = []
     if node.is_leaf:
@@ -126,11 +127,11 @@ def search(node, prefix, limit=None, is_case_sensitive=False):
     """
     搜索一个前缀下的所有单词列表 递归
 
-    :param node: 根节点
-    :param prefix: 前缀
-    :param limit: 返回提示的数量
-    :param is_case_sensitive: 是否大小写敏感
-    :return: [(key, node)], 包含提示关键字和对应叶子节点的元组列表
+    @param node: 根节点
+    @param prefix: 前缀
+    @param limit: 返回提示的数量
+    @param is_case_sensitive: 是否大小写敏感
+    @return: [(key, node)], 包含提示关键字和对应叶子节点的元组列表
     """
     if not is_case_sensitive:
         prefix = prefix.lower()
@@ -161,10 +162,10 @@ def add(node, keyword, weight=0, **kwargs):
     """
     加入一个单词到树
 
-    :param node: 根节点
-    :param keyword: 关键词，前缀
-    :param weight: 权重
-    :param kwargs: 其他任意存储属性
+    @param node: 根节点
+    @param keyword: 关键词，前缀
+    @param weight: 权重
+    @param kwargs: 其他任意存储属性
     """
     one_node = node
 
@@ -194,9 +195,9 @@ def delete(node, keyword, judge_leaf=False):
     """
     从树中删除一个单词
 
-    :param node: 根节点
-    :param keyword: 关键词，前缀
-    :param judge_leaf: 是否判定叶节点，递归用,外部调用使用默认值
+    @param node: 根节点
+    @param keyword: 关键词，前缀
+    @param judge_leaf: 是否判定叶节点，递归用,外部调用使用默认值
     """
 
     # 空关键词，传入参数有问题，或者递归调用到了根节点,直接返回
@@ -242,8 +243,8 @@ def build(file_path, is_case_sensitive=False):
     """
     从文件构建数据结构, 文件必须utf-8编码,可变更
 
-    :param file_path: 数据文件路径，数据文件默认两列，格式“关键词\t权重"
-    :param is_case_sensitive: 是否大小写敏感
+    @param file_path: 数据文件路径，数据文件默认两列，格式“关键词\t权重"
+    @param is_case_sensitive: 是否大小写敏感
     """
     node = Node("")
     f = open(file_path)
@@ -282,7 +283,7 @@ if __name__ == '__main__':
         print key, node.weight
 
     print '============ test2 ==============='
-    tree = build("./test_data", is_case_sensitive=False)
+    tree = build("./data.txt", is_case_sensitive=False)
 
     print u'search 植物'
     for key, node in search(tree, u'植物', limit=10):

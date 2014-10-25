@@ -129,6 +129,12 @@ quick run
     2013-12-14 增加golang版本
     2014-05-11 增加double-array-trie实现的golang 版本
 
+#### Donation
+
+如果你觉得我的项目对你有所帮助, You can buy me a coffee:)
+
+![donation](https://raw.githubusercontent.com/wklken/gallery/master/donation/donation.png)
+
 ---------------
 
 

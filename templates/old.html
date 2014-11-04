@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<link rel="stylesheet" type="text/css" href="http://twitter.github.io/typeahead.js/css/examples.css">
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+<script src="/static/js/typeahead.bundle.js"></script>
+<script src="/static/js/bloodhound.js"></script>
+
+<style>
+    .container {
+    width: 800px;
+    margin: 100px auto;
+    }
+
+    .tt-dropdown-menu {
+    background-color: #fff;
+    border: 1px solid #000;
+    }
+
+    .tt-suggestion.tt-is-under-cursor {
+    background-color: #ccc;
+    }
+
+    #container .typeahead {
+        width: 600px;
+    }
+</style>
+
+</head>
+<body>
+
+<center>
+<div id="container">
+  <input class="typeahead" type="text" size="400" placeholder="挑选礼物">
+</div>
+
+
+<hr>
+
+
+</center>
+
+<pre>
+问题和反馈入口: <a href="http://jira.dev.itianpin.cn/browse/AR-1054" target="blank">AR-1054</a>
+
+
+=============================
+
+数据:
+
+精选优选专辑的 + repin/非repin商品标题集合 + 审核通过状态正常 = 13929个商品标题
++
+标签集合
+
+=============================
+
+机制:
+
+以 title + 标签, 计算tf-idf, 得到可以提示所有重要的词, 例如 [zakka]
+然后, 遍历标题集合(有序, order_value从高到低), 每个标题提取最重要的两个词, 形成组合词 [zakka 实木]
+
+<S>严格前缀匹配, 按商品order_value降序(效果不怎么好, 中间词无法匹配...商品范围太广标题整词包含各类符号效果一般)</S>
+
+
+其他: 
+
+拼音/拼音首字母提示暂未加入
+
+Tech-stack:  twitter typeahead.js + golang(double-array-trie)
+
+=============================
+
+</pre>
+
+<script>
+//prefetch: '../data/films/post_1960.json',
+var bestPictures = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.nonword('value'),
+  queryTokenizer: Bloodhound.tokenizers.nonword,
+  limit: 10,
+  remote: '/suggest/?keyword=%QUERY',
+});
+/**
+  template: '{{value}}',
+  engine: Hogan ,
+**/
+
+bestPictures.initialize();
+
+$('#container .typeahead').typeahead( {
+  hint: true,
+  highlight: true,
+  minLength: 1
+}, {
+  name: 'best-pictures',
+  displayKey: 'value',
+  source: bestPictures.ttAdapter(),
+});
+</script>
+
+
+</body>
+</html>
+

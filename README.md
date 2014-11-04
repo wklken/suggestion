@@ -3,28 +3,30 @@ suggestion
 
 > 简单的输入框下拉提示服务
 
-### 功能描述
+### Introduction
 
 在搜索输入框等位置,用户输入关键词,系统提示可以使用的关键字,提升用户体验
 
-search
+### ScreenShot
 
-    植物
+![img](https://raw.githubusercontent.com/wklken/gallery/master/suggestion/suggestion.gif)
 
-result:
+### Dependency
 
-    植物大战僵尸 154717704
-    植物大战僵尸年度中文版 44592048
-    植物大战僵尸ol 43566752
-    植物联盟 4244331
-    植物大战僵尸2 630955
-    植物大战外星人 530403
-    植物小鸟大战僵尸 128907
-    植物大作战 52909
-    植物精灵 50475
-    植物秘境：深入未知 43468
+1. jquery-2.1.1.min.js
 
-具体代码直接查看源文件
+2. twitter typeahead [github](https://github.com/twitter/typeahead.js/) | [examples](http://twitter.github.io/typeahead.js/examples/)
+
+### 使用
+
+1. clone
+
+2. go run test_web.go
+
+3. http://localhost:9090
+
+4. input
+
 
 ### 实现方式1: easymap
 
@@ -128,6 +130,7 @@ quick run
     2013-10-13 created, python版本
     2013-12-14 增加golang版本
     2014-05-11 增加double-array-trie实现的golang 版本
+    2014-11-04 fix golang version bug, 增加前端展示
 
 #### Donation
 

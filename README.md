@@ -3,19 +3,19 @@ suggestion
 
 > 简单的输入框下拉提示服务
 
-### Introduction
+### 简介
 
 在搜索输入框等位置,用户输入关键词,系统提示可以使用的关键字,提升用户体验
 
-### ScreenShot
+### 截图
 
 ![img](https://raw.githubusercontent.com/wklken/gallery/master/suggestion/suggestion.gif)
 
-### Dependency
+### 依赖
 
 1. jquery-2.1.1.min.js
 
-2. twitter typeahead [github](https://github.com/twitter/typeahead.js/) | [examples](http://twitter.github.io/typeahead.js/examples/)
+2. twitter typeahead 0.10.5 [github](https://github.com/twitter/typeahead.js/) | [examples](http://twitter.github.io/typeahead.js/examples/)
 
 ### 使用
 
@@ -27,10 +27,26 @@ suggestion
 
 4. input
 
+---------------
+
+### 数据文件格式
+
+默认文件格式:
+
+    format:    word\tweight
+    coding:    utf-8 [must]
+    require:   weight type(int)
+
+    eg:  植物大战僵尸\t1000
+
+
+
+
+
 
 ### 实现方式1: easymap
 
-使用map方式实现树结构,有python和golang两个版本
+使用map方式实现树结构,有python和golang两个版本(见easymap子目录)
 
 quick run:
 
@@ -48,7 +64,7 @@ go run suggest.go
 优点:
 
     逻辑简单结构清晰, 代码足够少, 方便扩展
-      e.g. 可自行修改存储结构,在返回中加入图片等额外信息
+    e.g. 可自行修改存储结构,在返回中加入图片等额外信息
 
 缺点:
 
@@ -88,6 +104,11 @@ quick run
      植物大战臭虫 5999
      植物大战异形 4456
      植物大战昆虫2无敌版 3419
+     
+     or
+     
+     go run test_web.go
+     访问 http://localhost:9090
 
 适用:
 
@@ -104,17 +125,6 @@ quick run
 处理和实践:
 
     加一层redis/memcached
-
-### 数据文件格式
-
-默认文件格式:
-
-    format:    word\tweight
-    coding:    utf-8 [must]
-    require:   weight type(int)
-
-    eg:  植物大战僵尸\t1000
-
 
 #### TODO
 
